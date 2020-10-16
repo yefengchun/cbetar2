@@ -281,13 +281,24 @@ class _EPubViewPage extends React.Component<PageProps, State> {
       copyright: '',
       publisher: '',
       published: '',
-      language: 'en',
+      language: 'zh-TW',
       description: 'A temp book.',
       contents: this.state.workInfo.title,
       source: '',
       images: ['logo.png'],
     }, 'logo.png');
-    this.epub.addSection('', this.state.htmlStr, true, false);
+    const htmlWithJs = this.state.htmlStr + 
+    `<script>
+      navigator.serviceWorker.register('/service-worker.js')
+      .then(function (registration) {
+        console.log('Service worker registered!');
+      })
+      .catch(function (error) {
+        console.error('Error during service worker registration:', error);
+      });
+    </script>
+    `;
+    this.epub.addSection(this.state.workInfo.title, htmlWithJs, true, false);
 
     let rtlVerticalStyles = `
     html {
@@ -413,6 +424,7 @@ class _EPubViewPage extends React.Component<PageProps, State> {
 
         const ePubIframe = document.getElementsByTagName('iframe')[0];
         ePubIframe.contentDocument?.addEventListener("keyup", this.keyListener.bind(this), false);
+        ePubIframe.src = '/';
       }
     );
     //});
